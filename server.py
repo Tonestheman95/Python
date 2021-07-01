@@ -1,35 +1,37 @@
-from flask import Flask, render_template, request, redirect, session
+from flask import Flask, render_template, request, redirect, flash
 app = Flask(__name__)
-app.secret_key = 'Tonesjones' # set a secret key for security purposes
+app.secret_key = "hudson"
 
-@app.route('/')          # The "@" decorator associates this route with the function immediately following
-def hello_counter():
-    if "count" not in session:
-        session['count'] = 1
+@app.route('/')
+def index():
+    return render_template("index.html")
+
+@app.route("/result", methods=["POST"])
+def result():
+    if len(request.form["name"])<1:
+        flash("Write your damn name")
+        return redirect("/")
+    if len(request.form["comments"])<1:
+        flash("Write a damn comment")
+        return redirect("/")
+    if len(request.form["comments"])>200:
+        flash("You wrote to much dude.")
+        return redirect("/")
     else:
-        session['count'] += 1
+        name = request.form["name"]
+        dojo_location = request.form["dojo_location"]
+        favlanguage = request.form["favlanguage"]
+        comments = request.form["comments"]
+        return render_template("index2.html", name = name, dojo_location = dojo_location, favlanguage = favlanguage, comments = comments)
 
-    return render_template("index.html")  # Return the string 'Hello World!' as a response
 
 
-@app.route("/count", methods=["POST"])
-def view_count():
-    if request.form["alter"]=="add":
-        session["count"] += 1
-
-    elif request.form["alter"]=="reset":
-        session["count"] = 0
-
+@app.route("/danger")
+def danger_back():
+    print("a user tried to visit '/danger'. redirected the user to '/'")
     return redirect("/")
 
 
 
-@app.route("/destroy")
-def destroy():
-    session.clear()
-    return redirect("/") 
-
-
-
-if __name__=="__main__":   # Ensure this file is being run directly and not from a different module    
-    app.run(debug=True)    # Run the app in debug mode.
+if __name__=="__main__":
+    app.run(debug=True) 
